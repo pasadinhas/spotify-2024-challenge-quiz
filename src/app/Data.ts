@@ -1,3 +1,5 @@
+'use client'
+
 import data from "./data.json";
 
 
@@ -44,11 +46,13 @@ Object.keys(ARTIST_CHALLENGE_DATA).forEach(l => {
   ARTIST_CHALLENGE_DATA[l] = shuffle(ARTIST_CHALLENGE_DATA[l])
 })
 
+console.log("Shuffle done")
 
-const DISPLAY_NAME = {
+const DISPLAY_NAME: {[username: string]: string} = {
   "bukjir": "Carlos Carvalho"
 }
-const AVATARS = {
+
+const AVATARS: {[username: string]: DataT[0]["addedBy"]["data"]["avatar"]} = {
   "bukjir": {
     "sources": [
       {
