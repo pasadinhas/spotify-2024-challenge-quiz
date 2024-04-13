@@ -6,9 +6,6 @@ import dynamic from "next/dynamic";
 
 const {Alphabet,ArtistChallengeData} = Data
 
-console.log({ ...Data })
-console.log({ Alphabet, ArtistChallengeData })
-
 type Data = typeof ArtistChallengeData
 type Tracks = typeof ArtistChallengeData['A']
 type Track = Tracks[0]
@@ -21,21 +18,28 @@ type Answer = {
   selected: {[trackId: string]: string}
 }
 
+const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.artists-answers"
+
 function HomeNoSSR() {
 
-  console.log("Rendering Home")
-
-  const defaultAnswers: Answers = {}
+  const emptyAnswersObject: Answers = {}
+  const computeDefaultAnswers = () => Alphabet.reduce((result, letter) => {
+    result[letter] = {
+      locked: false,
+      selected: {},
+    }
+    return result
+  }, emptyAnswersObject)
   const [currentLetter, setCurrentLetter] = useState('A')
-  const [answers, setAnswers]: [Answers, (arg0: Answers) => void] = useState(() => 
-    Alphabet.reduce((result, letter) => {
-      result[letter] = {
-        locked: false,
-        selected: {},
-      }
-      return result
-    }, defaultAnswers)
-  )
+  const [answers, setAnswers]: [Answers, (arg0: Answers) => void] = useState(() => {
+    const locallySavedAnswers = localStorage.getItem(LOCAL_STORAGE_ANSWERS_KEY)
+    return locallySavedAnswers ? JSON.parse(locallySavedAnswers) : computeDefaultAnswers()
+  })
+
+  function setAndSaveAnwers(answers: Answers) {
+    localStorage.setItem(LOCAL_STORAGE_ANSWERS_KEY, JSON.stringify(answers))
+    setAnswers({...answers})
+  }
 
   const setAnswerForCurrentLetterTrack = (answer: string, track: Track) => {
     if (answers[currentLetter].locked) {
@@ -48,14 +52,13 @@ function HomeNoSSR() {
       }
     })
     answers[currentLetter].selected[track.uid] = answer
-    setAnswers({...answers})
+    setAndSaveAnwers(answers)
   }
 
   const tracks = ArtistChallengeData[currentLetter]
   const options: AddedBy[] = tracks.map(track => track.addedBy.data).sort((a, b) => a.name.localeCompare(b.name))
 
   const stats: Stats = computeStats(ArtistChallengeData, answers, options)
-  console.log(stats)
 
   function guess() {
     const numberOfAnswers = Object.values(answers[currentLetter].selected).filter(Boolean).length
@@ -64,12 +67,12 @@ function HomeNoSSR() {
       return
     }
     answers[currentLetter].locked = true
-    setAnswers({...answers})
+    setAndSaveAnwers(answers)
   }
 
   return (<>
     <header className="grid justify-center p-10">
-      <Progress currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} stats={stats}/>
+      <Progress currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} stats={stats} resetAnswers={() => setAndSaveAnwers(computeDefaultAnswers())}/>
     </header>
     <main className="flex flex-col min-w-screen p-10 gap-10">
       <ThreeColumns>
@@ -106,11 +109,11 @@ function AnswersStats({options, stats}: {options: AddedBy[], stats: Stats}) {
 function Controls({currentLetter, setCurrentLetter, guess}: {currentLetter: string, setCurrentLetter: (letter: string) => void, guess: () => void}) {
   const previousLetter = currentLetter == "A" ? "Z" : String.fromCharCode(currentLetter.charCodeAt(0) - 1);
   const nextLetter = currentLetter == "Z" ? "A" : String.fromCharCode(currentLetter.charCodeAt(0) + 1);
-  const btnClasses = "w-36 border border-neutral-500 px-5 py-3 hover:outline outline-offset-2 outline-neutral-300"
+  const btnClasses = "rounded-xl border border-neutral-500 px-5 py-3 hover:outline outline-offset-2 outline-neutral-300"
   return <div className="flex justify-center gap-10 my-5">
-    <button className={btnClasses} onClick={() => setCurrentLetter(previousLetter)}>Previous</button>
-    <button className={btnClasses} onClick={guess}>Guess</button>
-    <button className={btnClasses} onClick={() => setCurrentLetter(nextLetter)}>Next</button>
+    <button className={btnClasses} onClick={() => setCurrentLetter(previousLetter)}>«</button>
+    <button className={btnClasses + " w-36"} onClick={guess}>Guess</button>
+    <button className={btnClasses} onClick={() => setCurrentLetter(nextLetter)}>»</button>
   </div>
 }
 
@@ -120,8 +123,13 @@ function ThreeColumns({ children }: { children: string | JSX.Element | JSX.Eleme
   </div>
 }
 
-function Progress({currentLetter, setCurrentLetter, stats}: {currentLetter: string, setCurrentLetter: (_: string) => void, stats: Stats}) {
-  return <div className="flex items-center">
+function Progress({currentLetter, setCurrentLetter, stats, resetAnswers}: {currentLetter: string, setCurrentLetter: (_: string) => void, stats: Stats, resetAnswers: () => void}) {
+  return <div className="flex items-center relative">
+    <button className="rounded-xl absolute -left-20 border border-neutral-500 w-10 mr-40 aspect-square hover:outline outline-offset-2 outline-neutral-300" onClick={() => {
+      if(confirm("This will delete all the answers you're previously given. Are you sure you want to delete them?")) {
+        resetAnswers()
+      }
+    }}>🗑</button>
     {Alphabet.map(letter => {
       const selectedClasses = letter == currentLetter ? "outline outline-offset-2 outline-neutral-300" : ""
       const letterStats = stats.byLetter[letter]

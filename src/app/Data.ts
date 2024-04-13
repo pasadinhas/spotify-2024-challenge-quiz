@@ -46,8 +46,6 @@ Object.keys(ARTIST_CHALLENGE_DATA).forEach(l => {
   ARTIST_CHALLENGE_DATA[l] = shuffle(ARTIST_CHALLENGE_DATA[l])
 })
 
-console.log("Shuffle done")
-
 const DISPLAY_NAME: {[username: string]: string} = {
   "bukjir": "Carlos Carvalho"
 }
@@ -92,7 +90,6 @@ const Data = {
   ArtistChallengeData: ARTIST_CHALLENGE_DATA,
 }
 
-console.log({ ...Data })
 
 export default {
   ...Data
