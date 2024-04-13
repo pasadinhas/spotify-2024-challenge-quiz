@@ -9,8 +9,6 @@ export const metadata: Metadata = {
   description: "Guess who chose each song",
 };
 
-export const dynamic = 'force-dynamic'
-
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
     <html lang="en">
