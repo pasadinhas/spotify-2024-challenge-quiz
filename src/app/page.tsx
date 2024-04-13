@@ -6,13 +6,14 @@ import Data from "./Data"
 const {Alphabet,ArtistChallengeData} = Data
 
 type Tracks = typeof ArtistChallengeData['A']
-type Track = Tracks['values']
+type Track = Tracks[0]
+type AddedBy = Track["addedBy"]["data"]
 
 type Answers = {[letter: string]: Answer}
 
 type Answer = {
   locked: Boolean,
-  answers: string[]
+  selected: {[trackId: string]: string}
 }
 
 export default function Home() {
@@ -23,28 +24,28 @@ export default function Home() {
     Alphabet.reduce((result, letter) => {
       result[letter] = {
         locked: false,
-        answers: [],
+        selected: {},
       }
       return result
     }, defaultAnswers)
   )
 
-  const setAnswerForCurrentLetterWithIndex = (answer: string, index: number) => {
+  const setAnswerForCurrentLetterTrack = (answer: string, track: Track) => {
     if (answers[currentLetter].locked) {
       console.debug("Cannot change answers because they have already been submited for: " + currentLetter)
       return
     }
-    for (let i = 0; i < answers[currentLetter].answers.length; i += 1) {
-      if (answers[currentLetter].answers[i] == answer) {
-        delete answers[currentLetter].answers[i]
+    Object.keys(answers[currentLetter].selected).forEach(trackId => {
+      if (answers[currentLetter].selected[trackId] == answer) {
+        delete answers[currentLetter].selected[trackId]
       }
-    }
-    answers[currentLetter].answers[index] = answer
+    })
+    answers[currentLetter].selected[track.uid] = answer
     setAnswers({...answers})
   }
 
   function guess() {
-    const numberOfAnswers = answers[currentLetter].answers.filter(Boolean).length
+    const numberOfAnswers = Object.values(answers[currentLetter].selected).filter(Boolean).length
     if (numberOfAnswers < 3) {
       alert("Oops, you didn't select answers for all tracks.")
       return
@@ -53,15 +54,18 @@ export default function Home() {
     setAnswers({...answers})
   }
 
+  const tracks = ArtistChallengeData[currentLetter]
+  const options: AddedBy[] = tracks.map(track => track.addedBy.data).sort((a, b) => a.name.localeCompare(b.name))
+
   return (<>
     <header className="flex justify-center p-10">
       <Progress currentLetter={currentLetter} setCurrentLetter={setCurrentLetter}/>
     </header>
     <main className="flex flex-col min-w-screen p-10 gap-10">
       <ThreeColumns>
-        <IndividualTrackQuiz tracks={ArtistChallengeData[currentLetter]} index={0} answers={answers[currentLetter]} setAnswerForCurrentLetterWithIndex={setAnswerForCurrentLetterWithIndex} />
-        <IndividualTrackQuiz tracks={ArtistChallengeData[currentLetter]} index={1} answers={answers[currentLetter]} setAnswerForCurrentLetterWithIndex={setAnswerForCurrentLetterWithIndex} />
-        <IndividualTrackQuiz tracks={ArtistChallengeData[currentLetter]} index={2} answers={answers[currentLetter]} setAnswerForCurrentLetterWithIndex={setAnswerForCurrentLetterWithIndex} />
+        <IndividualTrackQuiz track={tracks[0]} options={options} answers={answers[currentLetter]} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack} />
+        <IndividualTrackQuiz track={tracks[1]} options={options} answers={answers[currentLetter]} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack} />
+        <IndividualTrackQuiz track={tracks[2]} options={options} answers={answers[currentLetter]} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack} />
       </ThreeColumns>
       <Controls currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} guess={guess}></Controls>
     </main>
@@ -69,7 +73,7 @@ export default function Home() {
   );
 }
 
-function Controls({currentLetter, setCurrentLetter, guess}) {
+function Controls({currentLetter, setCurrentLetter, guess}: {currentLetter: string, setCurrentLetter: (letter: string) => void, guess: () => void}) {
   const previousLetter = currentLetter == "A" ? "Z" : String.fromCharCode(currentLetter.charCodeAt(0) - 1);
   const nextLetter = currentLetter == "Z" ? "A" : String.fromCharCode(currentLetter.charCodeAt(0) + 1);
   const btnClasses = "w-36 border border-neutral-500 px-5 py-3 hover:outline outline-offset-2 outline-neutral-300"
@@ -95,17 +99,17 @@ function Progress({currentLetter, setCurrentLetter}: {currentLetter: string, set
   </div>
 }
 
-type IndividualTrackQuizProps = { tracks: Tracks, index: number, answers: Answer, setAnswerForCurrentLetterWithIndex: (answer: string, index: number) => void }
-function IndividualTrackQuiz({tracks, index, answers, setAnswerForCurrentLetterWithIndex}: IndividualTrackQuizProps) {
-  if (tracks.length < index + 1) {
-    return <></>
-  }
-
-  const options = tracks.map(track => track.addedBy.data).sort((a, b) => a.name.localeCompare(b.name))
+type IndividualTrackQuizProps = { track: Track, options: AddedBy[], answers: Answer, setAnswerForCurrentLetterTrack: (answer: string, track: Track) => void }
+function IndividualTrackQuiz({track, options, answers, setAnswerForCurrentLetterTrack}: IndividualTrackQuizProps) {
+  if (!track) return <></>
 
   return <div className="grid gap-10 select-none">
-    <SpotifyWidget songId={tracks[index].itemV2.data.uri} />
-    <TrackAddedByOptions options={options} selectedAnswer={answers.answers[index]} locked={answers.locked} setAnswerForTrack={(answer: string) => setAnswerForCurrentLetterWithIndex(answer, index)} />
+    <SpotifyWidget songId={track.itemV2.data.uri} />
+    <div className="grid gap-5">
+      <Option track={track} option={options[0]} answers={answers} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack}/>
+      <Option track={track} option={options[1]} answers={answers} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack}/>
+      <Option track={track} option={options[2]} answers={answers} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack}/>
+    </div>
   </div>
 }
 
@@ -135,24 +139,15 @@ function SpotifyWidget({ songId }: { songId: string }) {
 }
 
 
-
-type TrackAddedByOptionsProps = { options: Track.addedBy.data }
-function TrackAddedByOptions({ options, selectedAnswer, setAnswerForTrack, locked }) {
-  return <div className="grid gap-5">
-    <Option option={options[0]} selectedAnswer={selectedAnswer} selectAnswer={() => setAnswerForTrack(options[0]?.name)} />
-    <Option option={options[1]} selectedAnswer={selectedAnswer} selectAnswer={() => setAnswerForTrack(options[1]?.name)} />
-    <Option option={options[2]} selectedAnswer={selectedAnswer} selectAnswer={() => setAnswerForTrack(options[2]?.name)} />
-  </div>
-}
-
-
-function Option({ option, selectedAnswer, selectAnswer, locked }) {
+type OptionProps = { track: Track, option: AddedBy, answers: Answer, setAnswerForCurrentLetterTrack: (answer: string, track: Track) => void }
+function Option({ track, option, answers, setAnswerForCurrentLetterTrack }: OptionProps) {
   if (!option) return <></>
+  const selectedAnswer = answers.selected[track.uid]
   // const backgroundColor = (!locked && selectedAnswer == option.name)
   const selectedClassName = selectedAnswer == option.name ? "bg-neutral-500/50" : ""
-  return <div className={`flex p-5 cursor-pointer rounded-xl border border-dashed border-neutral-500 ${selectedClassName} outline-offset-4 outline-neutral-300 hover:outline`} onClick={selectAnswer}>
-    <img className="w-10 h-10 rounded-xl align-middle	" src={option.avatar.sources[0].url} />
+  return <div className={`flex p-5 cursor-pointer rounded-xl border border-dashed border-neutral-500 ${selectedClassName} outline-offset-4 outline-neutral-300 hover:outline`} 
+    onClick={() => setAnswerForCurrentLetterTrack(option?.name, track)}>
+    <img className="w-10 h-10 rounded-xl align-middle	" src={option.avatar?.sources[0].url} />
     <span className="leading-10 ps-5 text-center">{option.name}</span>
   </div>
-  
 }
