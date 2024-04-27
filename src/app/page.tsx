@@ -72,7 +72,7 @@ function HomeNoSSR() {
 
   return (<>
     <header className="grid justify-center p-10">
-      <Progress currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} stats={stats} resetAnswers={() => setAndSaveAnwers(computeDefaultAnswers())}/>
+      <Progress currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} stats={stats}/>
     </header>
     <main className="flex flex-col min-w-screen p-10 gap-10">
       <ThreeColumns>
@@ -80,7 +80,7 @@ function HomeNoSSR() {
         <IndividualTrackQuiz track={tracks[1]} options={options} answers={answers[currentLetter]} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack} />
         <IndividualTrackQuiz track={tracks[2]} options={options} answers={answers[currentLetter]} setAnswerForCurrentLetterTrack={setAnswerForCurrentLetterTrack} />
       </ThreeColumns>
-      <Controls currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} guess={guess}></Controls>
+      <Controls currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} guess={guess} resetAnswers={() => setAndSaveAnwers(computeDefaultAnswers())}></Controls>
     </main>
     <footer>
       <AnswersStats options={options} stats={stats} />
@@ -106,15 +106,28 @@ function AnswersStats({options, stats}: {options: AddedBy[], stats: Stats}) {
   </div>
 }
 
-function Controls({currentLetter, setCurrentLetter, guess}: {currentLetter: string, setCurrentLetter: (letter: string) => void, guess: () => void}) {
+function Controls({currentLetter, setCurrentLetter, guess, resetAnswers}: {currentLetter: string, setCurrentLetter: (letter: string) => void, guess: () => void, resetAnswers: () => void}) {
   const previousLetter = currentLetter == "A" ? "Z" : String.fromCharCode(currentLetter.charCodeAt(0) - 1);
   const nextLetter = currentLetter == "Z" ? "A" : String.fromCharCode(currentLetter.charCodeAt(0) + 1);
-  const btnClasses = "rounded-xl border border-neutral-500 px-5 py-3 hover:outline outline-offset-2 outline-neutral-300"
-  return <div className="flex justify-center gap-10 my-5">
-    <button className={btnClasses} onClick={() => setCurrentLetter(previousLetter)}>«</button>
-    <button className={btnClasses + " w-36"} onClick={guess}>Guess</button>
-    <button className={btnClasses} onClick={() => setCurrentLetter(nextLetter)}>»</button>
-  </div>
+  const btnClasses = "rounded-xl border px-5 py-3 hover:outline outline-offset-2";
+  const btnNeutralClasses = "border-neutral-500 outline-neutral-300";
+  const btnDangerClasses = "border-red-500 outline-red-300";
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex justify-center gap-10">
+        <button className={btnClasses + btnNeutralClasses} onClick={() => setCurrentLetter(previousLetter)}>«</button>
+        <button className={btnClasses + btnNeutralClasses + " w-36"} onClick={guess}>Guess</button>
+        <button className={btnClasses + btnNeutralClasses} onClick={() => setCurrentLetter(nextLetter)}>»</button>
+      </div>
+      <div className="flex justify-center">
+        <button className={btnClasses + btnDangerClasses} onClick={() => {
+          if(confirm("This will delete all the answers you're previously given. Are you sure you want to delete them?")) {
+            resetAnswers()
+          }
+        }}>Clear all answers</button>
+      </div>
+    </div>
+  )
 }
 
 function ThreeColumns({ children }: { children: string | JSX.Element | JSX.Element[] }) {
@@ -123,13 +136,8 @@ function ThreeColumns({ children }: { children: string | JSX.Element | JSX.Eleme
   </div>
 }
 
-function Progress({currentLetter, setCurrentLetter, stats, resetAnswers}: {currentLetter: string, setCurrentLetter: (_: string) => void, stats: Stats, resetAnswers: () => void}) {
-  return <div className="flex items-center relative">
-    <button className="rounded-xl absolute -left-20 border border-neutral-500 w-10 mr-40 aspect-square hover:outline outline-offset-2 outline-neutral-300" onClick={() => {
-      if(confirm("This will delete all the answers you're previously given. Are you sure you want to delete them?")) {
-        resetAnswers()
-      }
-    }}>🗑</button>
+function Progress({currentLetter, setCurrentLetter, stats}: {currentLetter: string, setCurrentLetter: (_: string) => void, stats: Stats}) {
+  return <div>
     {Alphabet.map(letter => {
       const selectedClasses = letter == currentLetter ? "outline outline-offset-2 outline-neutral-300" : ""
       const letterStats = stats.byLetter[letter]
