@@ -137,21 +137,30 @@ function ThreeColumns({ children }: { children: string | JSX.Element | JSX.Eleme
 }
 
 function Progress({currentLetter, setCurrentLetter, stats}: {currentLetter: string, setCurrentLetter: (_: string) => void, stats: Stats}) {
-  return <div>
-    {Alphabet.map(letter => {
-      const selectedClasses = letter == currentLetter ? "outline outline-offset-2 outline-neutral-300" : ""
-      const letterStats = stats.byLetter[letter]
-      let backgroundColor = ""
-      if (letterStats.locked && letterStats.correct == 0) {
-        backgroundColor = "bg-red-500/50"
-      } else if (letterStats.locked && letterStats.correct == letterStats.options) {
-        backgroundColor = "bg-green-500/50"
-      } else if (letterStats.locked) {
-        backgroundColor = "bg-yellow-500/50"
-      }
-      return <span key={letter} className={`p-2 h-10 font-bold text-center border border-dotted border-neutral-500 border-r-0 last:border-r aspect-square cursor-pointer ${selectedClasses} ${backgroundColor}`} onClick={() => setCurrentLetter(letter)}>{letter}</span>
-    })}
-  </div>
+  return (
+    <>
+      <div className="block lg:hidden">
+        <select className="bg-transparent w-36 rounded-xl border border-dotted border-neutral-500 text-center" value={currentLetter} onChange={e => setCurrentLetter(e.target.value)}>
+          {Alphabet.map(letter => <option key={letter} value={letter}>{letter}</option>)}
+        </select>
+      </div>
+      <div className="hidden lg:block">
+        {Alphabet.map(letter => {
+          const selectedClasses = letter == currentLetter ? "outline outline-offset-2 outline-neutral-300" : ""
+          const letterStats = stats.byLetter[letter]
+          let backgroundColor = ""
+          if (letterStats.locked && letterStats.correct == 0) {
+            backgroundColor = "bg-red-500/50"
+          } else if (letterStats.locked && letterStats.correct == letterStats.options) {
+            backgroundColor = "bg-green-500/50"
+          } else if (letterStats.locked) {
+            backgroundColor = "bg-yellow-500/50"
+          }
+          return <span key={letter} className={`p-2 h-10 font-bold text-center border border-dotted border-neutral-500 border-r-0 last:border-r aspect-square cursor-pointer ${selectedClasses} ${backgroundColor}`} onClick={() => setCurrentLetter(letter)}>{letter}</span>
+        })}
+      </div>
+    </>
+  )
 }
 
 type IndividualTrackQuizProps = { track: Track, options: AddedBy[], answers: Answer, setAnswerForCurrentLetterTrack: (answer: string, track: Track) => void }
