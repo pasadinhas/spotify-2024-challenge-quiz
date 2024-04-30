@@ -76,10 +76,10 @@ function HomeNoSSR() {
 
   return (
     <>
-      <header className="grid justify-center p-10">
+      <header className="grid justify-center p-5 pt-10 lg:p-10">
         <Progress currentLetter={currentLetter} setCurrentLetter={setCurrentLetter} stats={stats} />
       </header>
-      <main className="flex flex-col min-w-screen p-10 gap-10">
+      <main className="flex flex-col p-5 pb-10 lg:p-10 gap-10">
         <ThreeColumns>
           <IndividualTrackQuiz
             track={tracks[0]}
@@ -116,7 +116,7 @@ function HomeNoSSR() {
 
 function AnswersStats({ options, stats }: { options: AddedBy[]; stats: Stats }) {
   return (
-    <div className="flex justify-center gap-10 my-5">
+    <div className="flex justify-center gap-10 my-5 px-2 lg:px-5">
       {options.map(option => {
         const correct = stats.byOption[option.name].correct;
         const guessed = stats.byOption[option.name].guessed;
@@ -124,10 +124,10 @@ function AnswersStats({ options, stats }: { options: AddedBy[]; stats: Stats }) 
         return (
           <div
             key={option.uri}
-            className="flex border border-dotted border-neutral-500 p-1 rounded-xl w-60"
+            className="flex flex-1 border border-dotted border-neutral-500 p-1 rounded-xl overflow-hidden"
           >
             <img
-              className="w-10 h-10 rounded-xl align-middle	"
+              className="w-10 h-10 rounded-xl align-middle hidden lg:block"
               src={option.avatar?.sources[0].url}
             />
             <div className="grid text-sm">
@@ -158,7 +158,7 @@ function Controls({
     currentLetter == "A" ? "Z" : String.fromCharCode(currentLetter.charCodeAt(0) - 1);
   const nextLetter =
     currentLetter == "Z" ? "A" : String.fromCharCode(currentLetter.charCodeAt(0) + 1);
-  const btnClasses = "rounded-xl border px-5 py-3 hover:outline outline-offset-2";
+  const btnClasses = "rounded-xl border px-5 py-3 hover:outline outline-offset-2 ";
   const btnNeutralClasses = "border-neutral-500 outline-neutral-300";
   const btnDangerClasses = "border-red-500 outline-red-300";
   return (
@@ -201,7 +201,11 @@ function Controls({
 }
 
 function ThreeColumns({ children }: { children: string | JSX.Element | JSX.Element[] }) {
-  return <div className="grid grid-rows-1 grid-cols-3 gap-x-20">{children}</div>;
+  return (
+    <div className="flex flex-col gap-5 lg:grid lg:grid-rows-1 lg:grid-cols-3 lg:gap-x-20">
+      {children}
+    </div>
+  );
 }
 
 function Progress({
@@ -271,7 +275,7 @@ function IndividualTrackQuiz({
   if (!track) return <></>;
 
   return (
-    <div className="grid gap-10 select-none">
+    <div className="lg:grid lg:gap-10 select-none">
       <SpotifyWidget songId={track.itemV2.data.uri} />
       <div className="grid gap-5">
         <Option
@@ -303,7 +307,7 @@ function SpotifyWidget({ songId }: { songId: string }) {
       <iframe // this iframe is used just for the background color using blur
         className="absolute translate-y-full overflow-hidden blur-3xl -z-10 scale-y-[3] saturate-50 opacity-30"
         src={`https://open.spotify.com/embed/track/${songId.replace("spotify:track:", "")}?utm_source=generator`}
-        width={"100%"}
+        width="100%"
         height="160"
         frameBorder="0"
         allowFullScreen={false}
@@ -313,7 +317,7 @@ function SpotifyWidget({ songId }: { songId: string }) {
       <iframe // this is the actual iframe that will show up
         className="rounded-xl"
         src={`https://open.spotify.com/embed/track/${songId.replace("spotify:track:", "")}?utm_source=generator`}
-        width={"100%"}
+        width="100%"
         height="160"
         frameBorder="0"
         allowFullScreen={false}
@@ -350,7 +354,7 @@ function Option({ track, option, answers, setAnswerForCurrentLetterTrack }: Opti
 
   return (
     <div
-      className={`flex p-5 cursor-pointer rounded-xl border border-dashed border-neutral-500 ${backgroundColor} outline-offset-4 outline-neutral-300 hover:outline`}
+      className={`lg:p-5 p-2 flex cursor-pointer rounded-xl border border-dashed border-neutral-500 ${backgroundColor} outline-offset-4 outline-neutral-300 hover:outline`}
       onClick={() => setAnswerForCurrentLetterTrack(option?.name, track)}
     >
       <img className="w-10 h-10 rounded-xl align-middle	" src={option.avatar?.sources[0].url} />
