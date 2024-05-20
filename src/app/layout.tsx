@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Guess who chose each song",
 };
 
-export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen`}>{children}</body>
