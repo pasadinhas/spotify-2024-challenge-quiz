@@ -18,7 +18,7 @@ type Answer = {
   selected: { [trackId: string]: string };
 };
 
-const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.artists-answers";
+const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.song-answers";
 
 function HomeNoSSR() {
   const emptyAnswersObject: Answers = {};

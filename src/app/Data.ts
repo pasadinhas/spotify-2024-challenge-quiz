@@ -4,7 +4,7 @@ import data from "./data.json";
 
 type DataT = typeof data;
 
-const ARTIST_CHALLENGE_FIRST_INDEX = 3;
+const ARTIST_CHALLENGE_FIRST_INDEX = 3 + 26 * 3;
 const ARTIST_CHALLENGE_LAST_INDEX = ARTIST_CHALLENGE_FIRST_INDEX + 26 * 3;
 
 const ARTIST_CHALLENGE_DATA: { [key: string]: DataT } = {};
@@ -57,7 +57,7 @@ const AVATARS: { [username: string]: DataT[0]["addedBy"]["data"]["avatar"] } = {
     sources: [
       {
         height: 96,
-        url: "https://media-lhr8-1.cdn.whatsapp.net/v/t61.24694-24/128648711_199567601658731_2045578490166953150_n.jpg?stp=dst-jpg_s96x96&ccb=11-4&oh=01_ASD7ImIpBFpkVM0lD0Z_vitUl9UR_96y4nrKBIGwvKyxfw&oe=66275D94&_nc_sid=e6ed6c&_nc_cat=106",
+        url: "/spotify-2024-challenge-quiz/img/bukjir.jpg",
         width: 96,
       },
     ],
@@ -66,7 +66,7 @@ const AVATARS: { [username: string]: DataT[0]["addedBy"]["data"]["avatar"] } = {
     sources: [
       {
         height: 96,
-        url: "https://media-lhr6-1.cdn.whatsapp.net/v/t61.24694-24/307541005_631745041842053_8155029856052070701_n.jpg?stp=dst-jpg_s96x96&ccb=11-4&oh=01_ASDsxyFQfWet77iH4oM2eDVFwAByTWYQLFpdklpSUE4Mog&oe=66275E62&_nc_sid=e6ed6c&_nc_cat=100",
+        url: "/spotify-2024-challenge-quiz/img/1167349358.jpg",
         width: 96,
       },
     ],
@@ -75,7 +75,7 @@ const AVATARS: { [username: string]: DataT[0]["addedBy"]["data"]["avatar"] } = {
     sources: [
       {
         height: 96,
-        url: "https://media-lhr8-1.cdn.whatsapp.net/v/t61.24694-24/354032698_842049643446152_1327475429696372697_n.jpg?stp=dst-jpg_s96x96&ccb=11-4&oh=01_ASBuMl8XekZVqeL-HKdDL9WLJhcYXv41APsx0TYL62kAfg&oe=662770FD&_nc_sid=e6ed6c&_nc_cat=104",
+        url: "/spotify-2024-challenge-quiz/img/1173496040.jpg",
         width: 96,
       },
     ],
