@@ -4,7 +4,7 @@ import data from "./data.json";
 
 type DataT = typeof data;
 
-const ARTIST_CHALLENGE_FIRST_INDEX = 3 + 26 * 3;
+const ARTIST_CHALLENGE_FIRST_INDEX = 3 + 2 * 26 * 3;
 const ARTIST_CHALLENGE_LAST_INDEX = ARTIST_CHALLENGE_FIRST_INDEX + 26 * 3;
 
 const ARTIST_CHALLENGE_DATA: { [key: string]: DataT } = {};
