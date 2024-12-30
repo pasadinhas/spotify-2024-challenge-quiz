@@ -154,10 +154,9 @@ function Controls({
   guess: () => void;
   resetAnswers: () => void;
 }) {
-  const previousLetter =
-    currentLetter == "A" ? "Z" : String.fromCharCode(currentLetter.charCodeAt(0) - 1);
-  const nextLetter =
-    currentLetter == "Z" ? "A" : String.fromCharCode(currentLetter.charCodeAt(0) + 1);
+  const currentIndex = Alphabet.indexOf(currentLetter);
+  const previousLetter = Alphabet[(currentIndex - 1) % Alphabet.length];
+  const nextLetter = Alphabet[(currentIndex + 1) % Alphabet.length];
   const btnClasses = "rounded-xl border px-5 py-3 hover:outline outline-offset-2 ";
   const btnNeutralClasses = "border-neutral-500 outline-neutral-300";
   const btnDangerClasses = "border-red-500 outline-red-300";
