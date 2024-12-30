@@ -18,7 +18,7 @@ type Answer = {
   selected: { [trackId: string]: string };
 };
 
-const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.albums-answers";
+const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.years-answers";
 
 function HomeNoSSR() {
   const emptyAnswersObject: Answers = {};
@@ -30,7 +30,7 @@ function HomeNoSSR() {
       };
       return result;
     }, emptyAnswersObject);
-  const [currentLetter, setCurrentLetter] = useState("A");
+  const [currentLetter, setCurrentLetter] = useState("81");
   const [answers, setAnswers]: [Answers, (arg0: Answers) => void] = useState(() => {
     const locallySavedAnswers = localStorage.getItem(LOCAL_STORAGE_ANSWERS_KEY);
     return locallySavedAnswers ? JSON.parse(locallySavedAnswers) : computeDefaultAnswers();

@@ -4,12 +4,57 @@ import data from "./data.json";
 
 type DataT = typeof data;
 
-const ARTIST_CHALLENGE_FIRST_INDEX = 3 + 2 * 26 * 3;
-const ARTIST_CHALLENGE_LAST_INDEX = ARTIST_CHALLENGE_FIRST_INDEX + 26 * 3;
+// const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const ALPHABET = [
+  "81",
+  "82",
+  "83",
+  "84",
+  "85",
+  "86",
+  "87",
+  "88",
+  "89",
+  "90",
+  "91",
+  "92",
+  "93",
+  "94",
+  "95",
+  "96",
+  "97",
+  "98",
+  "99",
+  "00",
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "19",
+  "20",
+  "21",
+  "22",
+  "23",
+];
 
-const ARTIST_CHALLENGE_DATA: { [key: string]: DataT } = {};
+const CHALLENGE_FIRST_INDEX = 3 + 3 * 26 * 3;
+const CHALLENGE_LAST_INDEX = CHALLENGE_FIRST_INDEX + ALPHABET.length * 3;
 
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const CHALLENGE_DATA: { [key: string]: DataT } = {};
 
 function shuffle(array: any[]) {
   let currentIndex = array.length,
@@ -29,23 +74,25 @@ function shuffle(array: any[]) {
 }
 
 // Iterate over the tracks and group them into chunks of three
-for (
-  let i = ARTIST_CHALLENGE_FIRST_INDEX;
-  i < ARTIST_CHALLENGE_LAST_INDEX && i < data.length;
-  i += 1
-) {
-  const letter = ALPHABET[Math.floor(i - ARTIST_CHALLENGE_FIRST_INDEX) % 26];
+for (let i = CHALLENGE_FIRST_INDEX; i < CHALLENGE_LAST_INDEX && i < data.length; i += 1) {
+  const letter = ALPHABET[Math.floor(i - CHALLENGE_FIRST_INDEX) % ALPHABET.length];
 
   // Assign the chunk to the corresponding letter in the map
-  if (!ARTIST_CHALLENGE_DATA[letter]) {
-    ARTIST_CHALLENGE_DATA[letter] = [];
+  if (!CHALLENGE_DATA[letter]) {
+    CHALLENGE_DATA[letter] = [];
   }
 
-  ARTIST_CHALLENGE_DATA[letter].push(data[i]);
+  CHALLENGE_DATA[letter].push(data[i]);
 }
 
-Object.keys(ARTIST_CHALLENGE_DATA).forEach(l => {
-  ARTIST_CHALLENGE_DATA[l] = shuffle(ARTIST_CHALLENGE_DATA[l]);
+// Hack: add 2024
+CHALLENGE_DATA["24"] = [];
+CHALLENGE_DATA["24"].push(data[CHALLENGE_LAST_INDEX + 0]);
+CHALLENGE_DATA["24"].push(data[CHALLENGE_LAST_INDEX + 1]);
+CHALLENGE_DATA["24"].push(data[CHALLENGE_LAST_INDEX + 2]);
+
+Object.keys(CHALLENGE_DATA).forEach(l => {
+  CHALLENGE_DATA[l] = shuffle(CHALLENGE_DATA[l]);
 });
 
 const DISPLAY_NAME: { [username: string]: string } = {
@@ -82,7 +129,7 @@ const AVATARS: { [username: string]: DataT[0]["addedBy"]["data"]["avatar"] } = {
   },
 };
 
-Object.values(ARTIST_CHALLENGE_DATA).forEach(tracks =>
+Object.values(CHALLENGE_DATA).forEach(tracks =>
   tracks.forEach(track => {
     track.addedBy.data.name = DISPLAY_NAME[track.addedBy.data.username] ?? track.addedBy.data.name;
     track.addedBy.data.avatar = AVATARS[track.addedBy.data.username] ?? track.addedBy.data.avatar;
@@ -90,8 +137,8 @@ Object.values(ARTIST_CHALLENGE_DATA).forEach(tracks =>
 );
 
 const Data = {
-  Alphabet: ALPHABET,
-  ArtistChallengeData: ARTIST_CHALLENGE_DATA,
+  Alphabet: [...ALPHABET, "24"], // Hack: add 2024
+  ArtistChallengeData: CHALLENGE_DATA,
 };
 
 export default {
