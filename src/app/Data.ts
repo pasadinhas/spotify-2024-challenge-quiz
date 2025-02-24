@@ -2,7 +2,11 @@
 
 import data from "./data.json";
 
-type DataT = typeof data;
+export type Track = {
+  addedAt: string,
+  addedBy: string,
+  uri: string,
+}
 
 // const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const ALPHABET = [
@@ -54,7 +58,7 @@ const ALPHABET = [
 const CHALLENGE_FIRST_INDEX = 3 + 3 * 26 * 3;
 const CHALLENGE_LAST_INDEX = CHALLENGE_FIRST_INDEX + ALPHABET.length * 3;
 
-const CHALLENGE_DATA: { [key: string]: DataT } = {};
+const CHALLENGE_DATA: { [key: string]: Track[] } = {};
 
 function shuffle(array: any[]) {
   let currentIndex = array.length,
@@ -95,46 +99,25 @@ Object.keys(CHALLENGE_DATA).forEach(l => {
   CHALLENGE_DATA[l] = shuffle(CHALLENGE_DATA[l]);
 });
 
-const DISPLAY_NAME: { [username: string]: string } = {
-  bukjir: "Carlos Carvalho",
+const DisplayNames: { [username: string]: string } = {
+  "spotify:user:bukjir": "Carlos Carvalho",
+  "spotify:user:1167349358": "Daniel Sil",
+  "spotify:user:1173496040": "Miguel Pasadinhas"
 };
 
-const AVATARS: { [username: string]: DataT[0]["addedBy"]["data"]["avatar"] } = {
-  bukjir: {
-    sources: [
-      {
-        height: 96,
-        url: "/spotify-2024-challenge-quiz/img/bukjir.jpg",
-        width: 96,
-      },
-    ],
-  },
-  "1167349358": {
-    sources: [
-      {
-        height: 96,
-        url: "/spotify-2024-challenge-quiz/img/1167349358.jpg",
-        width: 96,
-      },
-    ],
-  },
-  "1173496040": {
-    sources: [
-      {
-        height: 96,
-        url: "/spotify-2024-challenge-quiz/img/1173496040.jpg",
-        width: 96,
-      },
-    ],
-  },
+export function DisplayName(username: string) {
+  return DisplayNames[username];
+}
+
+const Avatars: { [username: string]: string } = {
+  "spotify:user:bukjir": "/spotify-2024-challenge-quiz/img/bukjir.jpg",
+  "spotify:user:1167349358": "/spotify-2024-challenge-quiz/img/1167349358.jpg",
+  "spotify:user:1173496040": "/spotify-2024-challenge-quiz/img/1173496040.jpg"
 };
 
-Object.values(CHALLENGE_DATA).forEach(tracks =>
-  tracks.forEach(track => {
-    track.addedBy.data.name = DISPLAY_NAME[track.addedBy.data.username] ?? track.addedBy.data.name;
-    track.addedBy.data.avatar = AVATARS[track.addedBy.data.username] ?? track.addedBy.data.avatar;
-  }),
-);
+export function Avatar(username: string) {
+  return Avatars[username];
+}
 
 const Data = {
   Alphabet: [...ALPHABET, "24"], // Hack: add 2024
@@ -144,5 +127,3 @@ const Data = {
 export default {
   ...Data,
 };
-
-export type Data = DataT;

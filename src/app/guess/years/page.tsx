@@ -1,17 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Data from "../../Data";
-import dynamic from "next/dynamic";
+import Data, { Avatar, DisplayName, Track } from "../../Data";
 import ThreeColumns from "../../components/ThreeColumns";
 import OptionLayout from "../../components/OptionLayout";
 
 const { Alphabet, ArtistChallengeData } = Data;
-
-type Data = typeof ArtistChallengeData;
-type Tracks = (typeof ArtistChallengeData)["A"];
-type Track = Tracks[0];
-type AddedBy = Track["addedBy"]["data"];
 
 type Answers = { [letter: string]: Answer };
 
@@ -55,14 +49,12 @@ function Page() {
         delete answers[currentLetter].selected[trackId];
       }
     });
-    answers[currentLetter].selected[track.uid] = answer;
+    answers[currentLetter].selected[track.uri] = answer;
     setAndSaveAnwers(answers);
   };
 
   const tracks = ArtistChallengeData[currentLetter];
-  const options: AddedBy[] = tracks
-    .map(track => track.addedBy.data)
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const options = tracks.map(track => track.addedBy).sort();
 
   const stats: Stats = computeStats(ArtistChallengeData, answers, options);
 
@@ -116,24 +108,24 @@ function Page() {
   );
 }
 
-function AnswersStats({ options, stats }: { options: AddedBy[]; stats: Stats }) {
+function AnswersStats({ options, stats }: { options: string[]; stats: Stats }) {
   return (
     <div className="flex justify-center gap-10 my-5 px-2 lg:px-5">
       {options.map(option => {
-        const correct = stats.byOption[option.name].correct;
-        const guessed = stats.byOption[option.name].guessed;
+        const correct = stats.byOption[option].correct;
+        const guessed = stats.byOption[option].guessed;
         const percentage = guessed == 0 ? 0 : Math.round((100 * correct) / guessed);
         return (
           <div
-            key={option.uri}
+            key={option}
             className="flex flex-1 border border-dotted border-neutral-500 p-1 rounded-xl overflow-hidden"
           >
             <img
               className="w-10 h-10 rounded-xl align-middle hidden lg:block"
-              src={option.avatar?.sources[0].url}
+              src={Avatar(option)}
             />
             <div className="grid text-sm">
-              <span className="leading-5 ps-5">{option.name}</span>
+              <span className="leading-5 ps-5">{DisplayName(option)}</span>
               <span className="leading-5 ps-5">
                 {correct} / {guessed} ({percentage}%)
               </span>
@@ -255,7 +247,7 @@ function Progress({
 
 type IndividualTrackQuizProps = {
   track: Track;
-  options: AddedBy[];
+  options: string[];
   answers: Answer;
   setAnswerForCurrentLetterTrack: (answer: string, track: Track) => void;
 };
@@ -268,7 +260,7 @@ function IndividualTrackQuiz({
   if (!track) return <></>;
 
   return (
-    <OptionLayout main={<SpotifyWidget songId={track.itemV2.data.uri} />}>
+    <OptionLayout main={<SpotifyWidget songId={track.uri} />}>
       <Option
         track={track}
         option={options[0]}
@@ -320,16 +312,16 @@ function SpotifyWidget({ songId }: { songId: string }) {
 
 type OptionProps = {
   track: Track;
-  option: AddedBy;
+  option: string;
   answers: Answer;
   setAnswerForCurrentLetterTrack: (answer: string, track: Track) => void;
 };
 function Option({ track, option, answers, setAnswerForCurrentLetterTrack }: OptionProps) {
   if (!option) return <></>;
-  const selectedAnswer = answers.selected[track.uid];
-  const correctAnswer = track.addedBy.data.name;
-  const isThisOptionSelected = selectedAnswer == option.name;
-  const isThisOptionCorrect = correctAnswer == option.name;
+  const selectedAnswer = answers.selected[track.uri];
+  const correctAnswer = track.addedBy;
+  const isThisOptionSelected = selectedAnswer == option;
+  const isThisOptionCorrect = correctAnswer == option;
   const areAnswersLocked = answers.locked;
 
   let backgroundColor = "";
@@ -345,10 +337,10 @@ function Option({ track, option, answers, setAnswerForCurrentLetterTrack }: Opti
   return (
     <div
       className={`lg:p-5 p-2 flex cursor-pointer rounded-xl border border-dashed border-neutral-500 ${backgroundColor} outline-offset-4 outline-neutral-300 hover:outline`}
-      onClick={() => setAnswerForCurrentLetterTrack(option?.name, track)}
+      onClick={() => setAnswerForCurrentLetterTrack(option, track)}
     >
-      <img className="w-10 h-10 rounded-xl align-middle	" src={option.avatar?.sources[0].url} />
-      <span className="leading-10 ps-5 text-center">{option.name}</span>
+      <img className="w-10 h-10 rounded-xl align-middle	" src={Avatar(option)} />
+      <span className="leading-10 ps-5 text-center">{DisplayName(option)}</span>
     </div>
   );
 }
@@ -358,7 +350,7 @@ type Stats = {
   byLetter: { [letter: string]: { locked: Boolean; options: number; correct: number } };
   byOption: any;
 };
-function computeStats(data: Data, answers: Answers, options: AddedBy[]): Stats {
+function computeStats(data: {[groupBy: string]: Track[]}, answers: Answers, options: string[]): Stats {
   const totalAnswered = Object.values(answers).filter(answer => answer.locked).length;
 
   const defaultLetterStats: Stats["byLetter"] = {};
@@ -368,7 +360,7 @@ function computeStats(data: Data, answers: Answers, options: AddedBy[]): Stats {
       locked: answers[letter].locked,
       options: data[letter].length,
       correct: data[letter]
-        .map(track => answers[letter].selected[track.uid] == track.addedBy.data.name)
+        .map(track => answers[letter].selected[track.uri] == track.addedBy)
         .filter(Boolean).length,
     };
     return result;
@@ -380,17 +372,17 @@ function computeStats(data: Data, answers: Answers, options: AddedBy[]): Stats {
     .map(answer => answer.selected)
     .reduce(Object.assign, {});
   const byOption = options.reduce((result, option) => {
-    result[option.name] = {
+    result[option] = {
       guessed: Object.values(answers)
         .filter(answer => answer.locked)
         .flatMap(answer => Object.values(answer.selected))
-        .filter(name => name == option.name).length,
+        .filter(name => name == option).length,
       correct: Object.values(data)
         .flatMap(e => e)
         .filter(
           track =>
-            lockedAnswers[track.uid] == option.name &&
-            lockedAnswers[track.uid] == track.addedBy.data.name,
+            lockedAnswers[track.uri] == option &&
+            lockedAnswers[track.uri] == track.addedBy,
         ).length,
     };
     return result;
