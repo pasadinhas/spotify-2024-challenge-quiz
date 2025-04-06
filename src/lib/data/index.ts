@@ -26,7 +26,52 @@ export function getAvatar(username: string) {
   return Avatars[username];
 }
 
-// const YEARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+function shuffle(array: any[]) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+/* ALBUMS */
+
+const ALBUMS_CHALLENGE_FIRST_INDEX = 3 + 2 * 26 * 3;
+const ALBUMS_CHALLENGE_LAST_INDEX = ALBUMS_CHALLENGE_FIRST_INDEX + 26 * 3;
+
+const ALBUMS_CHALLENGE_DATA: { [key: string]: Track[] } = {};
+
+for (
+  let i = ALBUMS_CHALLENGE_FIRST_INDEX;
+  i < ALBUMS_CHALLENGE_LAST_INDEX && i < data.length;
+  i += 1
+) {
+  const letter = ALPHABET[Math.floor(i - ALBUMS_CHALLENGE_FIRST_INDEX) % 26];
+
+  // Assign the chunk to the corresponding letter in the map
+  if (!ALBUMS_CHALLENGE_DATA[letter]) {
+    ALBUMS_CHALLENGE_DATA[letter] = [];
+  }
+
+  ALBUMS_CHALLENGE_DATA[letter].push(data[i]);
+}
+
+Object.keys(ALBUMS_CHALLENGE_DATA).forEach(l => {
+  ALBUMS_CHALLENGE_DATA[l] = shuffle(ALBUMS_CHALLENGE_DATA[l]);
+});
+
+/* YEARS */
 const YEARS = [
   "81",
   "82",
@@ -78,23 +123,6 @@ const YEARS_CHALLENGE_LAST_INDEX = YEARS_CHALLENGE_FIRST_INDEX + YEARS.length * 
 
 const YEARS_CHALLENGE_DATA: { [key: string]: Track[] } = {};
 
-function shuffle(array: any[]) {
-  let currentIndex = array.length,
-    randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex > 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-  }
-
-  return array;
-}
-
 // Iterate over the tracks and group them into chunks of three
 for (
   let i = YEARS_CHALLENGE_FIRST_INDEX;
@@ -124,6 +152,8 @@ Object.keys(YEARS_CHALLENGE_DATA).forEach(l => {
 const Data = {
   Years: [...YEARS, "24"], // Hack: add 2024
   YearsChallengeData: YEARS_CHALLENGE_DATA,
+  Letters: ALPHABET,
+  AlbumsChallengeData: ALBUMS_CHALLENGE_DATA,
 };
 
 export default Data;
