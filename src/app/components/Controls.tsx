@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+
 function Controls({
   data,
   current,
@@ -17,6 +19,8 @@ function Controls({
   const btnClasses = "rounded-xl border px-5 py-3 hover:outline outline-offset-2 ";
   const btnNeutralClasses = "border-neutral-500 outline-neutral-300";
   const btnDangerClasses = "border-red-500 outline-red-300";
+  const router = useRouter();
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex justify-center gap-10">
@@ -30,7 +34,10 @@ function Controls({
           »
         </button>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-5">
+        <button className={btnClasses + btnNeutralClasses} onClick={() => router.back()}>
+          Back to Game Selector
+        </button>
         <button
           className={btnClasses + btnDangerClasses}
           onClick={() => {
