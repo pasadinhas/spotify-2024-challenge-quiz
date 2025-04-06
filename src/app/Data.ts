@@ -124,6 +124,4 @@ const Data = {
   ArtistChallengeData: CHALLENGE_DATA,
 };
 
-export default {
-  ...Data,
-};
+export default Data;
