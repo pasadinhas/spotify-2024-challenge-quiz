@@ -11,21 +11,21 @@ import AnswersStats from "@/app/components/AnswerStats";
 import IndividualTrackQuiz from "@/app/components/IndividualTrackQuiz";
 import { computeStats } from "@/app/utils";
 
-const { Years, YearsChallengeData } = Data;
+const { Letters, AlbumsChallengeData } = Data;
 
-const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.years-answers";
+const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.albums-answers";
 
 function Page() {
   const emptyAnswersObject: Answers = {};
   const computeDefaultAnswers = () =>
-    Years.reduce((result, year) => {
-      result[year] = {
+    Letters.reduce((result, letter) => {
+      result[letter] = {
         locked: false,
         selected: {},
       };
       return result;
     }, emptyAnswersObject);
-  const [currentYear, setCurrentYear] = useState("81");
+  const [currentLetter, setCurrentLetter] = useState("A");
   const [answers, setAnswers] = useState<Answers>(computeDefaultAnswers());
 
   useEffect(() => {
@@ -48,67 +48,72 @@ function Page() {
     setAnswers({ ...answers });
   }
 
-  const setAnswerForCurrentYearTrack = (answer: string, track: Track) => {
-    if (answers[currentYear].locked) {
+  const setAnswerForCurrentLetterTrack = (answer: string, track: Track) => {
+    if (answers[currentLetter].locked) {
       console.debug(
-        "Cannot change answers because they have already been submitted for: " + currentYear,
+        "Cannot change answers because they have already been submitted for: " + currentLetter,
       );
       return;
     }
-    Object.keys(answers[currentYear].selected).forEach(trackId => {
-      if (answers[currentYear].selected[trackId] == answer) {
-        delete answers[currentYear].selected[trackId];
+    Object.keys(answers[currentLetter].selected).forEach(trackId => {
+      if (answers[currentLetter].selected[trackId] == answer) {
+        delete answers[currentLetter].selected[trackId];
       }
     });
-    answers[currentYear].selected[track.uri] = answer;
+    answers[currentLetter].selected[track.uri] = answer;
     setAndSaveAnswers(answers);
   };
 
-  const tracks = YearsChallengeData[currentYear];
+  const tracks = AlbumsChallengeData[currentLetter];
   const options = tracks.map(track => track.addedBy).sort();
 
-  const stats: Stats = computeStats(Years, YearsChallengeData, answers, options);
+  const stats: Stats = computeStats(Letters, AlbumsChallengeData, answers, options);
 
   function guess() {
-    const numberOfAnswers = Object.values(answers[currentYear].selected).filter(Boolean).length;
+    const numberOfAnswers = Object.values(answers[currentLetter].selected).filter(Boolean).length;
     if (numberOfAnswers < options.length) {
       alert("Oops, you didn't select answers for all tracks.");
       return;
     }
-    answers[currentYear].locked = true;
+    answers[currentLetter].locked = true;
     setAndSaveAnswers(answers);
   }
 
   return (
     <>
       <header className="grid justify-center p-5 pt-10 lg:p-10">
-        <Progress data={Years} current={currentYear} setCurrent={setCurrentYear} stats={stats} />
+        <Progress
+          data={Letters}
+          current={currentLetter}
+          setCurrent={setCurrentLetter}
+          stats={stats}
+        />
       </header>
       <main className="flex flex-col p-5 pb-10 lg:p-10 gap-10">
         <ThreeColumns>
           <IndividualTrackQuiz
             track={tracks[0]}
             options={options}
-            answers={answers[currentYear]}
-            setAnswerForCurrentPropertyTrack={setAnswerForCurrentYearTrack}
+            answers={answers[currentLetter]}
+            setAnswerForCurrentPropertyTrack={setAnswerForCurrentLetterTrack}
           />
           <IndividualTrackQuiz
             track={tracks[1]}
             options={options}
-            answers={answers[currentYear]}
-            setAnswerForCurrentPropertyTrack={setAnswerForCurrentYearTrack}
+            answers={answers[currentLetter]}
+            setAnswerForCurrentPropertyTrack={setAnswerForCurrentLetterTrack}
           />
           <IndividualTrackQuiz
             track={tracks[2]}
             options={options}
-            answers={answers[currentYear]}
-            setAnswerForCurrentPropertyTrack={setAnswerForCurrentYearTrack}
+            answers={answers[currentLetter]}
+            setAnswerForCurrentPropertyTrack={setAnswerForCurrentLetterTrack}
           />
         </ThreeColumns>
         <Controls
-          data={Years}
-          current={currentYear}
-          setCurrent={setCurrentYear}
+          data={Letters}
+          current={currentLetter}
+          setCurrent={setCurrentLetter}
           guess={guess}
           resetAnswers={() => setAndSaveAnswers(computeDefaultAnswers())}
         />
