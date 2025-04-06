@@ -3,10 +3,10 @@
 import data from "./data.json";
 
 export type Track = {
-  addedAt: string,
-  addedBy: string,
-  uri: string,
-}
+  addedAt: string;
+  addedBy: string;
+  uri: string;
+};
 
 // const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const ALPHABET = [
@@ -102,7 +102,7 @@ Object.keys(CHALLENGE_DATA).forEach(l => {
 const DisplayNames: { [username: string]: string } = {
   "spotify:user:bukjir": "Carlos Carvalho",
   "spotify:user:1167349358": "Daniel Sil",
-  "spotify:user:1173496040": "Miguel Pasadinhas"
+  "spotify:user:1173496040": "Miguel Pasadinhas",
 };
 
 export function DisplayName(username: string) {
@@ -112,7 +112,7 @@ export function DisplayName(username: string) {
 const Avatars: { [username: string]: string } = {
   "spotify:user:bukjir": "/spotify-2024-challenge-quiz/img/bukjir.jpg",
   "spotify:user:1167349358": "/spotify-2024-challenge-quiz/img/1167349358.jpg",
-  "spotify:user:1173496040": "/spotify-2024-challenge-quiz/img/1173496040.jpg"
+  "spotify:user:1173496040": "/spotify-2024-challenge-quiz/img/1173496040.jpg",
 };
 
 export function Avatar(username: string) {
