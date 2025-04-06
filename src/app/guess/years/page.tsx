@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Data, { Avatar, DisplayName, Track } from "../../Data";
 import ThreeColumns from "../../components/ThreeColumns";
 import OptionLayout from "../../components/OptionLayout";
-
+import Image from "next/image";
 const { Alphabet, ArtistChallengeData } = Data;
 
 type Answers = { [letter: string]: Answer };
@@ -27,20 +27,32 @@ function Page() {
       return result;
     }, emptyAnswersObject);
   const [currentLetter, setCurrentLetter] = useState("81");
-  const [answers, setAnswers]: [Answers, (arg0: Answers) => void] = useState(() => {
-    const locallySavedAnswers = localStorage.getItem(LOCAL_STORAGE_ANSWERS_KEY);
-    return locallySavedAnswers ? JSON.parse(locallySavedAnswers) : computeDefaultAnswers();
-  });
+  const [answers, setAnswers] = useState<Answers>(computeDefaultAnswers());
 
-  function setAndSaveAnwers(answers: Answers) {
-    localStorage.setItem(LOCAL_STORAGE_ANSWERS_KEY, JSON.stringify(answers));
+  useEffect(() => {
+    try {
+      const locallySavedAnswers = localStorage.getItem(LOCAL_STORAGE_ANSWERS_KEY);
+      if (locallySavedAnswers) {
+        setAnswers(JSON.parse(locallySavedAnswers));
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+    }
+  }, []);
+
+  function setAndSaveAnswers(answers: Answers) {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_ANSWERS_KEY, JSON.stringify(answers));
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
     setAnswers({ ...answers });
   }
 
   const setAnswerForCurrentLetterTrack = (answer: string, track: Track) => {
     if (answers[currentLetter].locked) {
       console.debug(
-        "Cannot change answers because they have already been submited for: " + currentLetter,
+        "Cannot change answers because they have already been submitted for: " + currentLetter,
       );
       return;
     }
@@ -50,7 +62,7 @@ function Page() {
       }
     });
     answers[currentLetter].selected[track.uri] = answer;
-    setAndSaveAnwers(answers);
+    setAndSaveAnswers(answers);
   };
 
   const tracks = ArtistChallengeData[currentLetter];
@@ -65,7 +77,7 @@ function Page() {
       return;
     }
     answers[currentLetter].locked = true;
-    setAndSaveAnwers(answers);
+    setAndSaveAnswers(answers);
   }
 
   return (
@@ -98,7 +110,7 @@ function Page() {
           currentLetter={currentLetter}
           setCurrentLetter={setCurrentLetter}
           guess={guess}
-          resetAnswers={() => setAndSaveAnwers(computeDefaultAnswers())}
+          resetAnswers={() => setAndSaveAnswers(computeDefaultAnswers())}
         ></Controls>
       </main>
       <footer>
@@ -120,9 +132,12 @@ function AnswersStats({ options, stats }: { options: string[]; stats: Stats }) {
             key={option}
             className="flex flex-1 border border-dotted border-neutral-500 p-1 rounded-xl overflow-hidden"
           >
-            <img
+            <Image
               className="w-10 h-10 rounded-xl align-middle hidden lg:block"
               src={Avatar(option)}
+              alt=""
+              width={40}
+              height={40}
             />
             <div className="grid text-sm">
               <span className="leading-5 ps-5">{DisplayName(option)}</span>
@@ -339,7 +354,13 @@ function Option({ track, option, answers, setAnswerForCurrentLetterTrack }: Opti
       className={`lg:p-5 p-2 flex cursor-pointer rounded-xl border border-dashed border-neutral-500 ${backgroundColor} outline-offset-4 outline-neutral-300 hover:outline`}
       onClick={() => setAnswerForCurrentLetterTrack(option, track)}
     >
-      <img className="w-10 h-10 rounded-xl align-middle	" src={Avatar(option)} />
+      <Image
+        className="w-10 h-10 rounded-xl align-middle"
+        src={Avatar(option)}
+        alt=""
+        width={40}
+        height={40}
+      />
       <span className="leading-10 ps-5 text-center">{DisplayName(option)}</span>
     </div>
   );
@@ -350,7 +371,11 @@ type Stats = {
   byLetter: { [letter: string]: { locked: Boolean; options: number; correct: number } };
   byOption: any;
 };
-function computeStats(data: {[groupBy: string]: Track[]}, answers: Answers, options: string[]): Stats {
+function computeStats(
+  data: { [groupBy: string]: Track[] },
+  answers: Answers,
+  options: string[],
+): Stats {
   const totalAnswered = Object.values(answers).filter(answer => answer.locked).length;
 
   const defaultLetterStats: Stats["byLetter"] = {};
@@ -380,9 +405,7 @@ function computeStats(data: {[groupBy: string]: Track[]}, answers: Answers, opti
       correct: Object.values(data)
         .flatMap(e => e)
         .filter(
-          track =>
-            lockedAnswers[track.uri] == option &&
-            lockedAnswers[track.uri] == track.addedBy,
+          track => lockedAnswers[track.uri] == option && lockedAnswers[track.uri] == track.addedBy,
         ).length,
     };
     return result;
