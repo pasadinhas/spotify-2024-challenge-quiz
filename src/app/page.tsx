@@ -74,7 +74,7 @@ function HomeNoSSR() {
             </Option>
             <Option
               onClick={() => {
-                router.push("/guess");
+                router.push("/guess/artists");
               }}
             >
               Artists
@@ -88,7 +88,7 @@ function HomeNoSSR() {
             </Option>
             <Option
               onClick={() => {
-                router.push("/guess");
+                router.push("/guess/songs");
               }}
             >
               Songs

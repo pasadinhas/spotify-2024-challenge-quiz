@@ -11,9 +11,9 @@ import AnswersStats from "@/app/components/AnswerStats";
 import IndividualTrackQuiz from "@/app/components/IndividualTrackQuiz";
 import { computeStats } from "@/app/utils";
 
-const { Letters, AlbumsChallengeData } = Data;
+const { Letters, SongsChallengeData } = Data;
 
-const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.albums-answers";
+const LOCAL_STORAGE_ANSWERS_KEY = "spotify-2024-challenge-quiz.songs-answers";
 
 function Page() {
   const emptyAnswersObject: Answers = {};
@@ -64,10 +64,10 @@ function Page() {
     setAndSaveAnswers(answers);
   };
 
-  const tracks = AlbumsChallengeData[currentLetter];
+  const tracks = SongsChallengeData[currentLetter];
   const options = tracks.map(track => track.addedBy).sort();
 
-  const stats: Stats = computeStats(Letters, AlbumsChallengeData, answers, options);
+  const stats: Stats = computeStats(Letters, SongsChallengeData, answers, options);
 
   function guess() {
     const numberOfAnswers = Object.values(answers[currentLetter].selected).filter(Boolean).length;

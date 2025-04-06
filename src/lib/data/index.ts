@@ -45,6 +45,56 @@ function shuffle(array: any[]) {
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
+/* ARTISTS */
+
+const ARTISTS_CHALLENGE_FIRST_INDEX = 3;
+const ARTISTS_CHALLENGE_LAST_INDEX = ARTISTS_CHALLENGE_FIRST_INDEX + 26 * 3;
+
+const ARTISTS_CHALLENGE_DATA: { [key: string]: Track[] } = {};
+
+for (
+  let i = ARTISTS_CHALLENGE_FIRST_INDEX;
+  i < ARTISTS_CHALLENGE_LAST_INDEX && i < data.length;
+  i += 1
+) {
+  const letter = ALPHABET[Math.floor(i - ARTISTS_CHALLENGE_FIRST_INDEX) % 26];
+
+  if (!ARTISTS_CHALLENGE_DATA[letter]) {
+    ARTISTS_CHALLENGE_DATA[letter] = [];
+  }
+
+  ARTISTS_CHALLENGE_DATA[letter].push(data[i]);
+}
+
+Object.keys(ARTISTS_CHALLENGE_DATA).forEach(l => {
+  ARTISTS_CHALLENGE_DATA[l] = shuffle(ARTISTS_CHALLENGE_DATA[l]);
+});
+
+/* SONGS */
+
+const SONGS_CHALLENGE_FIRST_INDEX = 3 + 26 * 3;
+const SONGS_CHALLENGE_LAST_INDEX = SONGS_CHALLENGE_FIRST_INDEX + 26 * 3;
+
+const SONGS_CHALLENGE_DATA: { [key: string]: Track[] } = {};
+
+for (
+  let i = SONGS_CHALLENGE_FIRST_INDEX;
+  i < SONGS_CHALLENGE_LAST_INDEX && i < data.length;
+  i += 1
+) {
+  const letter = ALPHABET[Math.floor(i - SONGS_CHALLENGE_FIRST_INDEX) % 26];
+
+  if (!SONGS_CHALLENGE_DATA[letter]) {
+    SONGS_CHALLENGE_DATA[letter] = [];
+  }
+
+  SONGS_CHALLENGE_DATA[letter].push(data[i]);
+}
+
+Object.keys(SONGS_CHALLENGE_DATA).forEach(l => {
+  SONGS_CHALLENGE_DATA[l] = shuffle(SONGS_CHALLENGE_DATA[l]);
+});
+
 /* ALBUMS */
 
 const ALBUMS_CHALLENGE_FIRST_INDEX = 3 + 2 * 26 * 3;
@@ -153,6 +203,8 @@ const Data = {
   Years: [...YEARS, "24"], // Hack: add 2024
   YearsChallengeData: YEARS_CHALLENGE_DATA,
   Letters: ALPHABET,
+  ArtistsChallengeData: ARTISTS_CHALLENGE_DATA,
+  SongsChallengeData: SONGS_CHALLENGE_DATA,
   AlbumsChallengeData: ALBUMS_CHALLENGE_DATA,
 };
 
